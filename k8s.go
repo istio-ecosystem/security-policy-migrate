@@ -7,14 +7,15 @@ import (
 	"os"
 	"strings"
 
-	"istio.io/istio/pkg/config/mesh"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
+	"sigs.k8s.io/yaml"
 )
 
 const (
@@ -78,12 +79,24 @@ func (kc *kubeClient) setRootnamespace() error {
 	if !ok {
 		return fmt.Errorf("missing config map key %q", meshConfigMapKey)
 	}
-	cfg, err := mesh.ApplyMeshConfigDefaults(configYaml)
+	jsonData, err := yaml.YAMLToJSON([]byte(configYaml))
 	if err != nil {
-		return fmt.Errorf("error parsing mesh config: %v", err)
+		return fmt.Errorf("failed converting YAML to JSON: %w", err)
 	}
-	kc.rootNamespace = cfg.RootNamespace
-	log.Printf("using root namespace: %s", kc.rootNamespace)
+	jsonObject := map[string]interface{}{}
+	if err := json.Unmarshal(jsonData, &jsonObject); err != nil {
+		return fmt.Errorf("failed unmarshaling JSON object: %w", err)
+	}
+	if val, found := jsonObject["rootNamespace"]; found && val != nil {
+		if v, ok := val.(string); ok && v != "" {
+			kc.rootNamespace = v
+			log.Printf("found root namespace: %s", kc.rootNamespace)
+		}
+	}
+	if kc.rootNamespace == "" {
+		log.Printf("root namespace not set, using %s as default", istioNamespace)
+		kc.rootNamespace = istioNamespace
+	}
 
 	return nil
 }

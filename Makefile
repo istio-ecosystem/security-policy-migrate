@@ -1,6 +1,6 @@
 
 build:
-	go build -o out/convert *.go
+	go build -ldflags="-s -w" -o out/convert *.go
 
 clean:
 	rm -fr ./out/
