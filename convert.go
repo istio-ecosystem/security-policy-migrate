@@ -211,9 +211,10 @@ func convertJWT(selectors []*outputSelector, input *InputPolicy, result *ResultS
 	if len(input.Policy.Origins) == 0 {
 		return nil
 	}
-	if input.Policy.PrincipalBinding != authnpb.PrincipalBinding_USE_ORIGIN {
-		result.addError(fmt.Sprintf("principalBinding is USE_PEER but origin defined"))
-	}
+	// TODO: should this be error?
+	//if input.Policy.PrincipalBinding != authnpb.PrincipalBinding_USE_ORIGIN {
+	//	result.addError(fmt.Sprintf("principalBinding is USE_PEER but origin defined"))
+	//}
 
 	var output []*OutputPolicy
 	for _, selector := range selectors {
@@ -289,7 +290,7 @@ func convertJWT(selectors []*outputSelector, input *InputPolicy, result *ResultS
 				return ret
 			}
 
-			if len(input.Policy.Origins) == 1 {
+			if len(input.Policy.Origins) == 1 && len(input.Policy.Origins[0].GetJwt().GetTriggerRules()) > 0 {
 				// Support the trigger rule if there is only 1 JWT issuer.
 				for _, trigger := range input.Policy.Origins[0].GetJwt().GetTriggerRules() {
 					extractPaths := func(pathMatchers []*authnpb.StringMatch) []string {

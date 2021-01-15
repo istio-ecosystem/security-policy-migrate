@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -73,6 +74,11 @@ func (kc *kubeClient) hasIstioNamespace() bool {
 func (kc *kubeClient) setRootnamespace() error {
 	meshConfigMap, err := kc.kubeClient.CoreV1().ConfigMaps(istioNamespace).Get(context.TODO(), meshConfigMapName, metav1.GetOptions{})
 	if err != nil {
+		if kerr.IsNotFound(err) {
+			log.Printf("could not find mesh config %s, using %s as default root namespace", meshConfigMapName, istioNamespace)
+			kc.rootNamespace = istioNamespace
+			return nil
+		}
 		return fmt.Errorf("failed to get meshconfig: %w", err)
 	}
 	configYaml, ok := meshConfigMap.Data[meshConfigMapKey]
@@ -128,7 +134,7 @@ func (kc *kubeClient) convert() error {
 			output, summary := converter.Convert(policy)
 			if cnt := len(summary.errors); cnt != 0 {
 				errorOutput := fmt.Sprintf("\n\t* %s", strings.Join(summary.errors, "\n\t* "))
-				log.Printf("FAILED converting policy %s/%s, found %d errors: %s", item.GetNamespace(), item.GetName(), cnt, errorOutput)
+				log.Printf("FAILED  converting policy %s/%s, found %d errors: %s", item.GetNamespace(), item.GetName(), cnt, errorOutput)
 				hasError = true
 			} else {
 				log.Printf("SUCCESS converting policy %s/%s", item.GetNamespace(), item.GetName())
