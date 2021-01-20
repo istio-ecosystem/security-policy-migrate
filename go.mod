@@ -4,8 +4,10 @@ go 1.15
 
 require (
 	github.com/gogo/protobuf v1.3.1
+	github.com/google/go-cmp v0.5.2
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/spf13/cobra v1.1.1
+	google.golang.org/protobuf v1.25.0
 	istio.io/api v0.0.0-20200513175333-ae3da0d240e3
 	istio.io/gogo-genproto v0.0.0-20200324192310-d3e214cd829a // indirect
 	k8s.io/api v0.20.1
