@@ -5,6 +5,9 @@ build:
 test:
 	go test -v ./...
 
+release: build
+	cd out && tar -czvf convert.tar.gz convert
+
 clean:
 	rm -fr ./out/
 
