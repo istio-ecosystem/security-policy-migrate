@@ -13,19 +13,21 @@ v1alpha1 authentication policy to the corresponding v1beta1 versions.
 1. Download the current latest release of the tool on github:
 
     ```console
-    curl -L -s https://github.com/yangminzhu/security-policy-migrate/releases/download/v0.1/convert.tar.gz && tar -xvf convert.tar.gz && chmod +x convert 
+    $ curl -L -s https://github.com/yangminzhu/security-policy-migrate/releases/download/v0.2/convert.tar.gz && tar -xvf convert.tar.gz && chmod +x convert 
     ```
 
-1. Run the tool in the k8s cluster and redirect the generated beta policy to beta-policy.yaml:
+1. Run the tool in the k8s cluster and store the beta policy in beta-policy.yaml:
 
     ```console
-    ./convert > beta-policy.yaml
+    $ ./convert > beta-policy.yaml
     ```
+
+1. Check the command output and make sure there are no errors, otherwise fix all errors and re-run the tool again.
 
 1. Dry-run the beta policy to make sure it will be accepted:
 
     ```console
-    kubectl apply --dry-run=server -f beta-policy.yaml
+    $ kubectl apply --dry-run=server -f beta-policy.yaml
     ```
 
-1. Double check the generated beta policies to make sure it is correct before applying.
+1. Before applying in real cluster, double check the beta policies again to make sure it is correct.
