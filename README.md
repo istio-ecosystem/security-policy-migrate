@@ -13,7 +13,19 @@ v1alpha1 authentication policy to the corresponding v1beta1 versions.
 1. Download the current latest release of the tool on github:
 
     ```console
-    $ curl -L -s https://github.com/yangminzhu/security-policy-migrate/releases/download/v0.2/convert.tar.gz && tar -xvf convert.tar.gz && chmod +x convert 
+    $ curl -L -s https://github.com/yangminzhu/security-policy-migrate/releases/download/v0.2/convert.tar.gz --output convert.tar.gz
+    ```
+
+1. Extract the tool from the downloaded file:
+
+    ```console
+    $ tar -xvf convert.tar.gz && chmod +x convert
+    ```
+
+1. Confirm the k8s cluster to be converted, the tool should be used with (old) Istio cluster that has v1alpha1 authentication policy:
+
+    ```console
+    $ kubectl config current-context
     ```
 
 1. Run the tool in the k8s cluster and store the beta policy in beta-policy.yaml:
