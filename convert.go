@@ -171,11 +171,10 @@ func (mc *Converter) targetToSelector(input *InputPolicy, target *authnpb.Target
 }
 
 func convertMTLS(selectors []*outputSelector, input *InputPolicy, result *ResultSummary) []*OutputPolicy {
-	mode := betapb.PeerAuthentication_MutualTLS_DISABLE
+	mode := betapb.PeerAuthentication_MutualTLS_PERMISSIVE
 	switch extractMTLS(input, result) {
-	case Unset:
-		mode = betapb.PeerAuthentication_MutualTLS_DISABLE
-	case Permissive:
+	case Unset, Permissive:
+		// Do not use DISABLE mode, it seems not working with autoMTLS and requires an extra DestinationRule.
 		mode = betapb.PeerAuthentication_MutualTLS_PERMISSIVE
 	case Strict:
 		mode = betapb.PeerAuthentication_MutualTLS_STRICT
@@ -272,17 +271,16 @@ func convertJWT(selectors []*outputSelector, input *InputPolicy, result *ResultS
 						},
 					},
 				}
-				if len(selector.Port) != 0 {
-					ret.To = []*betapb.Rule_To{
-						{
-							Operation: &betapb.Operation{
-								Paths:    paths,
-								NotPaths: notPaths,
-								Ports:    toStr(selector.Port),
-							},
-						},
-					}
+				if len(paths) == 0 && len(notPaths) == 0 && len(selector.Port) == 0 {
+					// Return to avoid generating empty operation.
+					return ret
 				}
+
+				ret.To = []*betapb.Rule_To{{Operation: &betapb.Operation{
+					Paths:    paths,
+					NotPaths: notPaths,
+					Ports:    toStr(selector.Port),
+				}}}
 				return ret
 			}
 

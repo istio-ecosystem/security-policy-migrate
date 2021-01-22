@@ -1,0 +1,14 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy
+      /default, mesh level policy
+  creationTimestamp: null
+  name: default
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT
+
+---

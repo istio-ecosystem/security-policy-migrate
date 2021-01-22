@@ -731,7 +731,7 @@ metadata:
   namespace: bar
 spec:
   mtls:
-    mode: DISABLE
+    mode: PERMISSIVE
 ---
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
@@ -823,9 +823,9 @@ spec:
       ver: v1
   portLevelMtls:
     80:
-      mode: DISABLE
+      mode: PERMISSIVE
     81:
-      mode: DISABLE
+      mode: PERMISSIVE
 ---
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
@@ -942,9 +942,9 @@ spec:
       ver: v1
   portLevelMtls:
     80:
-      mode: DISABLE
+      mode: PERMISSIVE
     81:
-      mode: DISABLE
+      mode: PERMISSIVE
 ---
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
@@ -992,6 +992,98 @@ spec:
 		},
 
 		{
+			name: "jwt-trigger-rule-only-path",
+			svcList: &corev1.ServiceList{
+				Items: []corev1.Service{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "my-service",
+							Namespace: "bar",
+						},
+						Spec: corev1.ServiceSpec{
+							Selector: map[string]string{
+								"app": "my-service",
+								"ver": "v1",
+							},
+						},
+					},
+				},
+			},
+			inputPolicy: inputPolicy(t, `
+apiVersion: authentication.istio.io/v1alpha1
+kind: Policy
+metadata:
+  name: jwt
+  namespace: bar
+spec:
+  targets:
+  - name: my-service
+  origins:
+  - jwt:
+      issuer: "testing@secure.istio.io"
+      jwksUri: "https://secure.istio.io"
+      triggerRules:
+      - includedPaths:
+        - exact: /includeExact1
+        - prefix: /includePrefix1
+        - suffix: includeSuffix1
+        excludedPaths:
+        - exact: /excludeExact1
+        - prefix: /excludePrefix1
+        - suffix: excludeSuffix1
+  principalBinding: USE_ORIGIN
+`),
+			wantOutput: outputPolicy(t, `
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: jwt-my-service
+  namespace: bar
+spec:
+  selector:
+    matchLabels:
+      app: my-service
+      ver: v1
+  mtls:
+    mode: PERMISSIVE
+---
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-my-service
+  namespace: bar
+spec:
+  selector:
+    matchLabels:
+      app: my-service
+      ver: v1
+  jwtRules:
+  - issuer: "testing@secure.istio.io"
+    jwksUri: "https://secure.istio.io"
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: jwt-my-service
+  namespace: bar
+spec:
+  selector:
+    matchLabels:
+      app: my-service
+      ver: v1
+  action: DENY
+  rules:
+  - from:
+    - source:
+        notRequestPrincipals: ["*"]
+    to:
+    - operation:
+        paths: ["/includeExact1", "/includePrefix1*", "*includeSuffix1"]
+        notPaths: ["/excludeExact1", "/excludePrefix1*", "*excludeSuffix1"]
+`),
+		},
+
+		{
 			name: "jwt-optional",
 			inputPolicy: inputPolicy(t, `
 apiVersion: authentication.istio.io/v1alpha1
@@ -1018,7 +1110,7 @@ metadata:
   namespace: bar
 spec:
   mtls:
-    mode: DISABLE
+    mode: PERMISSIVE
 ---
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
