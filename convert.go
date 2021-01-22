@@ -211,10 +211,6 @@ func convertJWT(selectors []*outputSelector, input *InputPolicy, result *ResultS
 	if len(input.Policy.Origins) == 0 {
 		return nil
 	}
-	// TODO: should this be error?
-	//if input.Policy.PrincipalBinding != authnpb.PrincipalBinding_USE_ORIGIN {
-	//	result.addError(fmt.Sprintf("principalBinding is USE_PEER but origin defined"))
-	//}
 
 	var output []*OutputPolicy
 	for _, selector := range selectors {

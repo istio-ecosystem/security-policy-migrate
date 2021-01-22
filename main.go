@@ -10,6 +10,7 @@ import (
 var (
 	kubeconfig    string
 	configContext string
+	ignoreError   bool
 )
 
 func main() {
@@ -29,7 +30,7 @@ func rootCmd(args []string) *cobra.Command {
 		DisableAutoGenTag: true,
 		Example:           `
 # Convert the v1alpha1 authentication policy in the current cluster and output the beta policy to beta-policies.yaml:
-./convert > beta-policies.yaml
+./convert > beta-policy.yaml
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if kubeconfig != "" {
@@ -50,5 +51,7 @@ func rootCmd(args []string) *cobra.Command {
 		"Kubernetes configuration file")
 	cmd.PersistentFlags().StringVar(&configContext, "context", "",
 		"The name of the kubeconfig context to use")
+	cmd.PersistentFlags().BoolVar(&ignoreError, "ignore-error", false, "Ignore any errors found in " +
+		"the conversion and still generate the converted beta policies, use with caution as the converted policies may not work as expected")
 	return cmd
 }

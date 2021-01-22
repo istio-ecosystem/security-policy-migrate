@@ -5,10 +5,10 @@ build:
 test:
 	go test -v ./...
 
-release: build
+release: build test
 	cd out && tar -czvf convert.tar.gz convert
 
 clean:
 	rm -fr ./out/
 
-.PHONY: build clean
+.PHONY: build test clean release

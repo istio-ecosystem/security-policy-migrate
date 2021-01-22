@@ -30,6 +30,12 @@ var (
 		{Group: "authentication.istio.io", Version: "v1alpha1", Resource: "policies"},
 		{Group: "authentication.istio.io", Version: "v1alpha1", Resource: "meshpolicies"},
 	}
+	gvrRbac = []schema.GroupVersionResource{
+		{Group: "rbac.istio.io", Version: "v1alpha1", Resource: "rbacconfigs"},
+		{Group: "rbac.istio.io", Version: "v1alpha1", Resource: "clusterrbacconfigs"},
+		{Group: "rbac.istio.io", Version: "v1alpha1", Resource: "servicerolebindings"},
+		{Group: "rbac.istio.io", Version: "v1alpha1", Resource: "serviceroles"},
+	}
 )
 
 type kubeClient struct {
@@ -145,10 +151,30 @@ func (kc *kubeClient) convert() error {
 		}
 	}
 
+	var rbacResources []string
+	for _, gvr := range gvrRbac {
+		objectList, err := kc.listResources(gvr)
+		if err != nil {
+			continue
+		}
+		for _, item := range objectList.Items {
+			rbacResources = append(rbacResources, fmt.Sprintf("%s: %s/%s", item.GetKind(), item.GetNamespace(), item.GetName()))
+		}
+	}
+	if len(rbacResources) != 0 {
+		errorOutput := fmt.Sprintf("\n\t* %s", strings.Join(rbacResources, "\n\t* "))
+		log.Printf("FAILED  found %d RBAC resources, this tool only supports converting authentication policy, "+
+			"check https://istio.io/latest/blog/2019/v1beta1-authorization-policy/#migration-from-the-v1alpha1-policy for converting RBAC resources manually: %s", len(rbacResources), errorOutput)
+		hasError = true
+	}
+
 	if hasError {
-		// TODO: add a flag to allow ignoring error and still generate beta policy.
-		// TODO: add a link to the istio.io conversion documentation.
-		return fmt.Errorf("conversion failed, found errors during conversion, please fix errors and re-run the tool again")
+		if ignoreError {
+			log.Printf("Found errors but ignored with --ignore-error, the converted policies may not work as expected")
+		} else {
+			// TODO: add a link to the istio.io conversion documentation.
+			return fmt.Errorf("conversion failed, found errors during conversion, please fix errors and re-run the tool again")
+		}
 	}
 	fmt.Printf(betaPolicyOutput.String())
 	return nil
