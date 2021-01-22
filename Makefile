@@ -1,6 +1,6 @@
 
 build:
-	go build -ldflags="-s -w" -o out/convert *.go
+	go build -ldflags="-s -w -X main.version=$(shell ./get-version.sh)" -o out/convert *.go
 
 test:
 	go test -v ./...

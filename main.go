@@ -11,6 +11,7 @@ var (
 	kubeconfig    string
 	configContext string
 	ignoreError   bool
+	version       string
 )
 
 func main() {
@@ -28,7 +29,7 @@ func rootCmd(args []string) *cobra.Command {
 		Short:             "Convert Istio v1alpha1 authentication policy to v1beta1 version (PeerAuthentication, RequestAuthentication, AuthorizationPolicy).",
 		SilenceUsage:      true,
 		DisableAutoGenTag: true,
-		Example:           `
+		Example: `
 # Convert the v1alpha1 authentication policy in the current cluster and output the beta policy to beta-policies.yaml:
 ./convert > beta-policy.yaml
 `,
@@ -45,13 +46,14 @@ func rootCmd(args []string) *cobra.Command {
 			}
 			return client.convert()
 		},
+		Version: version,
 	}
 	cmd.SetArgs(args)
 	cmd.PersistentFlags().StringVarP(&kubeconfig, "kubeconfig", "c", "",
 		"Kubernetes configuration file")
 	cmd.PersistentFlags().StringVar(&configContext, "context", "",
 		"The name of the kubeconfig context to use")
-	cmd.PersistentFlags().BoolVar(&ignoreError, "ignore-error", false, "Ignore any errors found in " +
+	cmd.PersistentFlags().BoolVar(&ignoreError, "ignore-error", false, "Ignore any errors found in "+
 		"the conversion and still generate the converted beta policies, use with caution as the converted policies may not work as expected")
 	return cmd
 }
