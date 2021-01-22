@@ -1,0 +1,28 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy
+      bar/default, namespace level policy
+  creationTimestamp: null
+  name: default
+  namespace: bar
+spec:
+  mtls:
+    mode: PERMISSIVE
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy
+      foo/default, namespace level policy
+  creationTimestamp: null
+  name: default
+  namespace: foo
+spec:
+  mtls:
+    mode: STRICT
+
+---

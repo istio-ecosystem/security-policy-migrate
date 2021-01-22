@@ -1,0 +1,34 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy
+      foo/httpbin-helloworld, service httpbin
+  creationTimestamp: null
+  name: httpbin-helloworld-httpbin
+  namespace: foo
+spec:
+  mtls:
+    mode: STRICT
+  selector:
+    matchLabels:
+      app: httpbin
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy
+      foo/httpbin-helloworld, service helloworld
+  creationTimestamp: null
+  name: httpbin-helloworld-helloworld
+  namespace: foo
+spec:
+  mtls:
+    mode: STRICT
+  selector:
+    matchLabels:
+      app: helloworld
+
+---

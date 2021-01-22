@@ -1,0 +1,11 @@
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "httpbin-helloworld"
+  namespace: foo
+spec:
+  targets:
+    - name: httpbin
+    - name: helloworld
+  peers:
+    - mtls: {}
