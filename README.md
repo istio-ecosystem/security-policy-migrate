@@ -44,10 +44,34 @@ v1alpha1 authentication policy to the corresponding v1beta1 versions.
 
 1. Before applying in real cluster, double check the beta policies again to make sure it is correct.
 
-## Notes
+## Supported Policy
 
-For v1alpha1 authentication policy, this tools supports most common use cases with some limitations (e.g. Policy with
-multiple trigger rules is not supported.)
+This tool supports converting v1alpha1 authentication policy with the following limitations:
 
-For v1alpha1 authorization policy, this tool does NOT support and please check https://istio.io/latest/blog/2019/v1beta1-authorization-policy/#migration-from-the-v1alpha1-policy
-for manual conversion.
+- Policy with multiple trigger rules is not supported;
+- Policy with trigger rule using regex is not supported, this feature was experimental in alpha and removed in beta;
+- Authorization policy is not supported, please check https://istio.io/latest/blog/2019/v1beta1-authorization-policy/#migration-from-the-v1alpha1-policy
+  for manual conversion;
+- etc.
+
+The tool may also fail due to other issues (e.g. missing or unmatched service definition). Detail error message will be generated,
+you should fix the error and re-run the tool.
+
+If you are sure and confident that the error could be ignored safely, you can run the tool with `--ignore-error` to generate
+the beta policy ignoring errors.
+
+The tool also provides the flag `--context` and `--kubeconfig` to allow using with a specific cluster or config.
+
+## Policy difference
+
+Please be noted that the beta policy is very different from the alpha ones, some typical differences are listed below (not a full list):
+
+- JWT policy denial message
+   - In alpha policy, the HTTP code 401 will be returned with the body "Origin authentication failed."
+   - In beta policy, the HTTP code 403 will be returned with the body "RBAC: access denied"
+
+- Service name (alpha) v.s. Workload selector (beta)
+   - In alpha policy, service name is used to select where to apply the policy
+   - In beta policy, workload selector is used to select where to apply the policy
+
+- etc.
