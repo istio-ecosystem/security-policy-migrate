@@ -3,9 +3,9 @@ kind: PeerAuthentication
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      foo/jwt-basic, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
+  name: jwt-basic-httpbin
   namespace: foo
 spec:
   mtls:
@@ -20,9 +20,9 @@ kind: RequestAuthentication
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      foo/jwt-basic, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
+  name: jwt-basic-httpbin
   namespace: foo
 spec:
   jwtRules:
@@ -38,9 +38,9 @@ kind: AuthorizationPolicy
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      foo/jwt-basic, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
+  name: jwt-basic-httpbin
   namespace: foo
 spec:
   action: DENY
@@ -49,10 +49,6 @@ spec:
     - source:
         notRequestPrincipals:
         - '*'
-    to:
-    - operation:
-        paths:
-        - /ip
   selector:
     matchLabels:
       app: httpbin

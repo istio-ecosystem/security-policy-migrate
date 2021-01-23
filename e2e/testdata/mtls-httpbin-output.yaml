@@ -3,10 +3,10 @@ kind: PeerAuthentication
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/httpbin, service httpbin
+      bar/httpbin, service httpbin
   creationTimestamp: null
   name: httpbin-httpbin
-  namespace: foo
+  namespace: bar
 spec:
   mtls:
     mode: STRICT

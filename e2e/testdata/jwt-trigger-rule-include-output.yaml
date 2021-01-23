@@ -3,10 +3,10 @@ kind: PeerAuthentication
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      bar/jwt-include, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
-  namespace: foo
+  name: jwt-include-httpbin
+  namespace: bar
 spec:
   mtls:
     mode: PERMISSIVE
@@ -20,10 +20,10 @@ kind: RequestAuthentication
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      bar/jwt-include, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
-  namespace: foo
+  name: jwt-include-httpbin
+  namespace: bar
 spec:
   jwtRules:
   - issuer: testing@secure.istio.io
@@ -38,10 +38,10 @@ kind: AuthorizationPolicy
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      bar/jwt-include, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
-  namespace: foo
+  name: jwt-include-httpbin
+  namespace: bar
 spec:
   action: DENY
   rules:
@@ -49,6 +49,11 @@ spec:
     - source:
         notRequestPrincipals:
         - '*'
+    to:
+    - operation:
+        paths:
+        - /headers
+        - /base64*
   selector:
     matchLabels:
       app: httpbin

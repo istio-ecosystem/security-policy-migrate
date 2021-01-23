@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 # deploy test workloads
-# namespace: foo, bar and naked (no sidecar)
-# service: sleep, httpbin:8000 and helloworld:5000
+# Namespace foo: sleep, httpbin and helloworld
+# Namespace bar: sleep, httpbin and helloworld
+# Namespace naked (no sidecar): sleep, httpbin and helloworld
 
 kubectl create ns foo
 kubectl label ns foo istio.io/rev=asm-1614-0

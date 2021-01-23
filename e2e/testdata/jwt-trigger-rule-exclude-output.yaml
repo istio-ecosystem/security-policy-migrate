@@ -3,9 +3,9 @@ kind: PeerAuthentication
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      foo/jwt-exclude, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
+  name: jwt-exclude-httpbin
   namespace: foo
 spec:
   mtls:
@@ -20,21 +20,14 @@ kind: RequestAuthentication
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      foo/jwt-exclude, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
+  name: jwt-exclude-httpbin
   namespace: foo
 spec:
   jwtRules:
-  - audiences:
-    - test1
-    - test2
-    fromHeaders:
-    - name: other-header
-    fromParams:
-    - jwt_token
-    issuer: testing@secure.istio.io
-    jwks: '{ "keys":[ {"e":"AQAB","kid":"DHFbpoIUqrY8t2zpA2qXfCmr5VO5ZEr4RzHU_-envvQ","kty":"RSA","n":"xAE7eB6qugXyCAG3yhh7pkDkT65pHymX-P7KfIupjf59vsdo91bSP9C8H07pSAGQO1MV_xFj9VswgsCg4R6otmg5PV2He95lZdHtOcU5DXIg_pbhLdKXbi66GlVeK6ABZOUW3WYtnNHD-91gVuoeJT_DwtGGcp4ignkgXfkiEm4sw-4sfb4qdt5oLbyVpmW6x9cfa7vs2WTfURiCrBoUqgBo_-4WTiULmmHSGZHOjzwa8WtrtOQGsAFjIbno85jp6MnGGGZPYZbDAa_b3y5u-YpW7ypZrvD8BgtKVjgtQgZhLAGezMt0ua3DRrWnKqTZ0BJ_EyxOGuHJrLsn00fnMQ"}]}'
+  - issuer: testing@secure.istio.io
+    jwksUri: https://raw.githubusercontent.com/istio/istio/release-1.4/security/tools/jwt/samples/jwks.json
   selector:
     matchLabels:
       app: httpbin
@@ -45,9 +38,9 @@ kind: AuthorizationPolicy
 metadata:
   annotations:
     security.istio.io/alpha-policy-convert: converted from alpha authentication policy
-      foo/jwt-example, service httpbin
+      foo/jwt-exclude, service httpbin
   creationTimestamp: null
-  name: jwt-example-httpbin
+  name: jwt-exclude-httpbin
   namespace: foo
 spec:
   action: DENY
@@ -58,16 +51,9 @@ spec:
         - '*'
     to:
     - operation:
-        paths:
-        - /base64*
-  - from:
-    - source:
-        notRequestPrincipals:
-        - '*'
-    to:
-    - operation:
         notPaths:
-        - /base64/exclude
+        - /headers
+        - /base64*
   selector:
     matchLabels:
       app: httpbin

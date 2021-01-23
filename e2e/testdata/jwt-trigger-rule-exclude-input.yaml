@@ -1,24 +1,17 @@
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: "Policy"
 metadata:
-  name: "jwt-example"
+  name: "jwt-exclude"
+  namespace: foo
 spec:
   targets:
     - name: httpbin
-  peers:
-    - mtls: {}
   origins:
     - jwt:
         issuer: "testing@secure.istio.io"
         jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.4/security/tools/jwt/samples/jwks.json"
+        triggerRules:
+          - excludedPaths:
+              - exact: /headers
+              - prefix: /base64
   principalBinding: USE_ORIGIN
----
-apiVersion: "networking.istio.io/v1alpha3"
-kind: "DestinationRule"
-metadata:
-  name: "httpbin"
-spec:
-  host: "httpbin"
-  trafficPolicy:
-    tls:
-      mode: ISTIO_MUTUAL

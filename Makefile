@@ -6,7 +6,7 @@ test:
 	@go test -v $(go list ./... | grep -v /e2e)
 
 e2e:
-	@go test -v $(go list ./... | grep /e2e)
+	go test -v ./e2e/...
 
 release: build test
 	@cd out && tar -czvf convert.tar.gz convert
@@ -14,4 +14,4 @@ release: build test
 clean:
 	@rm -fr ./out/
 
-.PHONY: build test clean release
+.PHONY: build test clean release e2e
