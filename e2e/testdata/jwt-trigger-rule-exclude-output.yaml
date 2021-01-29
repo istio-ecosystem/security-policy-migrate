@@ -53,7 +53,7 @@ spec:
     - operation:
         notPaths:
         - /headers
-        - /base64*
+        - /links*
   selector:
     matchLabels:
       app: httpbin

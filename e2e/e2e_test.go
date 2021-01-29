@@ -163,9 +163,8 @@ func retry(t *testing.T, failLimit, passLimit int, verify func() error) {
 
 func TestE2E(t *testing.T) {
 	// The test assumes the following deployment:
-	// Namespace foo: sleep, httpbin and helloworld
-	// Namespace bar: sleep, httpbin and helloworld
-	// Namespace naked (no sidecar): sleep, httpbin and helloworld
+	// Namespace foo and bar: sleep, httpbin (8000, 80), helloworld (5000) and tcp-echo (9000, 9001)
+	// Namespace naked (no sidecar): sleep, httpbin (8000, 80), helloworld (5000) and tcp-echo (9000, 9001)
 	testCases := []struct {
 		name   string
 		verify []verifyCmd
@@ -199,6 +198,39 @@ func TestE2E(t *testing.T) {
 				},
 				{
 					from: "sleep.naked", to: "helloworld.bar:5000", path: "/hello", jwt: true,
+					want: []string{"HTTP/1.1 200 OK"},
+				},
+			},
+		},
+		{
+			name: "both-port-level",
+			verify: []verifyCmd{
+				{
+					from: "sleep.foo", to: "httpbin.foo:8000", path: "/headers",
+					want: []string{"By=spiffe://ymzhu-istio.svc.id.goog/ns/foo/sa/httpbin", "URI=spiffe://ymzhu-istio.svc.id.goog/ns/foo/sa/sleep"},
+				},
+				{
+					from: "sleep.foo", to: "httpbin.foo:8000", path: "/links/10/1",
+					want: []string{"RBAC: access denied"},
+				},
+				{
+					from: "sleep.foo", to: "httpbin.foo:8000", path: "/links/10/1", jwt: true,
+					want: []string{"HTTP/1.1 200 OK"},
+				},
+				{
+					from: "sleep.foo", to: "httpbin.foo:80", path: "/headers",
+					want: []string{"By=spiffe://ymzhu-istio.svc.id.goog/ns/foo/sa/httpbin", "URI=spiffe://ymzhu-istio.svc.id.goog/ns/foo/sa/sleep"},
+				},
+				{
+					from: "sleep.foo", to: "httpbin.foo:80", path: "/links/10/1",
+					want: []string{"HTTP/1.1 200 OK"},
+				},
+				{
+					from: "sleep.naked", to: "httpbin.foo:80", path: "/headers",
+					want: []string{"Connection reset by peer"},
+				},
+				{
+					from: "sleep.naked", to: "httpbin.foo:8000", path: "/headers",
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 			},
@@ -241,15 +273,15 @@ func TestE2E(t *testing.T) {
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 				{
-					from: "sleep.foo", to: "httpbin.foo:8000", path: "/base64/abcd",
+					from: "sleep.foo", to: "httpbin.foo:8000", path: "/links/10/1",
 					want: []string{"RBAC: access denied"},
 				},
 				{
-					from: "sleep.foo", to: "httpbin.foo:8000", path: "/base64/abcd", jwt: true,
+					from: "sleep.foo", to: "httpbin.foo:8000", path: "/links/9/1", jwt: true,
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 				{
-					from: "sleep.foo", to: "httpbin.foo:8000", path: "/base64/exclude",
+					from: "sleep.foo", to: "httpbin.foo:8000", path: "/links/1/1",
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 			},
@@ -270,11 +302,11 @@ func TestE2E(t *testing.T) {
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 				{
-					from: "sleep.foo", to: "httpbin.foo:8000", path: "/base64/aaaa",
+					from: "sleep.foo", to: "httpbin.foo:8000", path: "/links/10/1",
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 				{
-					from: "sleep.foo", to: "httpbin.foo:8000", path: "/base64/bbbb",
+					from: "sleep.foo", to: "httpbin.foo:8000", path: "/links/9/1",
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 			},
@@ -295,15 +327,15 @@ func TestE2E(t *testing.T) {
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 				{
-					from: "sleep.bar", to: "httpbin.bar:8000", path: "/base64/aaaa", jwt: true,
+					from: "sleep.bar", to: "httpbin.bar:8000", path: "/links/10/1", jwt: true,
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 				{
-					from: "sleep.bar", to: "httpbin.bar:8000", path: "/base64/bbbb", jwt: true,
+					from: "sleep.bar", to: "httpbin.bar:8000", path: "/links/9/1", jwt: true,
 					want: []string{"HTTP/1.1 200 OK"},
 				},
 				{
-					from: "sleep.bar", to: "httpbin.bar:8000", path: "/base64/cccc",
+					from: "sleep.bar", to: "httpbin.bar:8000", path: "/links/8/1",
 					want: []string{"RBAC: access denied"},
 				},
 			},
