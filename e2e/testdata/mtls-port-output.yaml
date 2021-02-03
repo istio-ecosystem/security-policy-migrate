@@ -1,0 +1,73 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy bar/bar-permissive, service httpbin
+  creationTimestamp: null
+  name: bar-permissive-httpbin
+  namespace: bar
+spec:
+  portLevelMtls:
+    "80":
+      mode: PERMISSIVE
+  selector:
+    matchLabels:
+      app: httpbin
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy bar/default, namespace level policy
+  creationTimestamp: null
+  name: default
+  namespace: bar
+spec:
+  mtls:
+    mode: PERMISSIVE
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy foo/default, namespace level policy
+  creationTimestamp: null
+  name: default
+  namespace: foo
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy foo/foo-strict, service httpbin
+  creationTimestamp: null
+  name: foo-strict-httpbin
+  namespace: foo
+spec:
+  portLevelMtls:
+    "80":
+      mode: STRICT
+  selector:
+    matchLabels:
+      app: httpbin
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    security.istio.io/alpha-policy-convert: converted from alpha authentication policy /default, mesh level policy
+  creationTimestamp: null
+  name: default
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT
+
+---

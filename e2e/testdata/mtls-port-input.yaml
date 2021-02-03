@@ -1,0 +1,28 @@
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "foo-strict"
+  namespace: foo
+spec:
+  targets:
+  - name: httpbin
+    ports:
+    - number: 8000
+  peers:
+  - mtls:
+      mode: STRICT
+
+---
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "bar-permissive"
+  namespace: bar
+spec:
+  targets:
+  - name: httpbin
+    ports:
+    - number: 8000
+  peers:
+    - mtls:
+        mode: PERMISSIVE
