@@ -21,7 +21,7 @@ var (
 	trustDomain    = "cluster.local"
 )
 
-// newIdentity creates http response with prefix and SpiffeID.
+// newIdentity returns the Istio mTLS identity with a custom prefix.
 func newIdentity(prefix, ns, sa string) string {
 	return prefix + "spiffe://" + trustDomain + "/ns/" + ns + "/sa/" + sa
 }
