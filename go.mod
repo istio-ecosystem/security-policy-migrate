@@ -1,4 +1,4 @@
-module github.com/yangminzhu/security-policy-migrate
+module github.com/istio-ecosystem/security-policy-migrate
 
 go 1.15
 

@@ -1,7 +1,7 @@
 # security-policy-migrate
 
-![Build and Test](https://github.com/yangminzhu/security-policy-migrate/workflows/Build/badge.svg)
-![Release](https://github.com/yangminzhu/security-policy-migrate/workflows/Release/badge.svg)
+![Build and Test](https://github.com/istio-ecosystem/security-policy-migrate/workflows/Build/badge.svg)
+![Release](https://github.com/istio-ecosystem/security-policy-migrate/workflows/Release/badge.svg)
 
 A tool to convert the Istio v1alpha1 authentication policy to the v1beta1 version.
 
@@ -13,7 +13,7 @@ v1alpha1 authentication policy to the corresponding v1beta1 versions.
 1. Download the current latest release of the tool on github:
 
     ```bash
-    curl -L -s https://github.com/yangminzhu/security-policy-migrate/releases/latest/download/convert.tar.gz --output convert.tar.gz
+    curl -L -s https://github.com/istio-ecosystem/security-policy-migrate/releases/latest/download/convert.tar.gz --output convert.tar.gz
     ```
 
 1. Extract the tool from the downloaded file:

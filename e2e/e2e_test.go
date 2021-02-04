@@ -16,8 +16,8 @@ const (
 )
 
 var (
-	istioCluster14 = "gke_linggg-istio-002_us-central1-c_e2eaddon14"
-	istioCluster16 = "gke_linggg-istio-002_us-central1-c_addon16"
+	istioCluster14 = "YOUR_ISTIO_14_CLUSTER"
+	istioCluster16 = "YOUR_ISTIO_16_CLUSTER"
 	trustDomain    = "cluster.local"
 )
 
@@ -213,7 +213,7 @@ func TestE2E(t *testing.T) {
 			verify: []verifyCmd{
 				{
 					from: "sleep.foo", to: "httpbin.foo:8000", path: "/headers",
-					want: []string{"By=spiffe://ymzhu-istio.svc.id.goog/ns/foo/sa/httpbin", "URI=spiffe://ymzhu-istio.svc.id.goog/ns/foo/sa/sleep"},
+					want: []string{newIdentity("By=", "foo", "httpbin"), newIdentity("URI=", "foo", "sleep")},
 				},
 				{
 					from: "sleep.foo", to: "httpbin.foo:8000", path: "/links/10/1",
@@ -225,7 +225,7 @@ func TestE2E(t *testing.T) {
 				},
 				{
 					from: "sleep.foo", to: "httpbin.foo:80", path: "/headers",
-					want: []string{"By=spiffe://ymzhu-istio.svc.id.goog/ns/foo/sa/httpbin", "URI=spiffe://ymzhu-istio.svc.id.goog/ns/foo/sa/sleep"},
+					want: []string{newIdentity("By=", "foo", "httpbin"), newIdentity("URI=", "foo", "sleep")},
 				},
 				{
 					from: "sleep.foo", to: "httpbin.foo:80", path: "/links/10/1",
