@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -125,7 +126,7 @@ func (kc *kubeClient) convert() error {
 	}
 	converter := newConverter(kc.rootNamespace, services)
 	hasError := false
-	var betaPolicyOutput strings.Builder
+	betaPolicyOutput := map[string]*strings.Builder{}
 	for _, gvr := range gvrPolicies {
 		objectList, err := kc.listResources(gvr)
 		if err != nil {
@@ -145,7 +146,14 @@ func (kc *kubeClient) convert() error {
 			} else {
 				log.Printf("SUCCESS converting policy %s/%s", item.GetNamespace(), item.GetName())
 				for _, out := range output {
-					betaPolicyOutput.WriteString(out.toYAML())
+					key := "all"
+					if perNamespace != "" {
+						key = out.Namespace
+					}
+					if _, ok := betaPolicyOutput[key]; !ok {
+						betaPolicyOutput[key] = &strings.Builder{}
+					}
+					betaPolicyOutput[key].WriteString(out.toYAML())
 				}
 			}
 		}
@@ -176,7 +184,19 @@ func (kc *kubeClient) convert() error {
 			return fmt.Errorf("conversion failed, found errors during conversion, please fix errors and re-run the tool again")
 		}
 	}
-	fmt.Printf(betaPolicyOutput.String())
+
+	if perNamespace != "" {
+		for ns, out := range betaPolicyOutput {
+			filename := fmt.Sprintf("%s/ns-%s.yaml", perNamespace, ns)
+			log.Printf("Writing to %s for namespace %s", filename, ns)
+			err := ioutil.WriteFile(filename, []byte(out.String()), 0644)
+			if err != nil {
+				return fmt.Errorf("write to %s failed: %v", filename, err)
+			}
+		}
+	} else {
+		fmt.Printf(betaPolicyOutput["all"].String())
+	}
 	return nil
 }
 

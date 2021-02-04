@@ -34,6 +34,15 @@ v1alpha1 authentication policy to the corresponding v1beta1 versions.
     ./convert > beta-policy.yaml
     ```
 
+    You could also use the flag `--per-namespace` to store policies per-namespace so that you could verify and apply the
+    generated policies gradually per-namespace:
+
+    ```bash
+    mkdir beta-policy-dir
+    ./convert --per-namespace beta-policy-dir
+    ls beta-policy-dir
+    ```
+
 1. Check the command output and make sure there are no errors, otherwise fix all errors and re-run the tool again.
 
 1. Dry-run the beta policy to make sure it will be accepted:
@@ -42,7 +51,7 @@ v1alpha1 authentication policy to the corresponding v1beta1 versions.
     kubectl apply --dry-run=server -f beta-policy.yaml
     ```
 
-1. Before applying in real cluster, double check the beta policies again to make sure it is correct.
+1. Before applying in a real cluster, double check the beta policies again to make sure it is correct.
 
 ## Supported Policy
 

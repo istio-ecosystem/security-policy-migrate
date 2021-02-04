@@ -11,6 +11,7 @@ var (
 	kubeconfig    string
 	configContext string
 	ignoreError   bool
+	perNamespace  string
 	version       string
 )
 
@@ -50,10 +51,12 @@ func rootCmd(args []string) *cobra.Command {
 	}
 	cmd.SetArgs(args)
 	cmd.PersistentFlags().StringVarP(&kubeconfig, "kubeconfig", "c", "",
-		"Kubernetes configuration file")
+		"kubernetes configuration file")
 	cmd.PersistentFlags().StringVar(&configContext, "context", "",
-		"The name of the kubeconfig context to use")
-	cmd.PersistentFlags().BoolVar(&ignoreError, "ignore-error", false, "Ignore any errors found in "+
+		"the name of the kubeconfig context to use")
+	cmd.PersistentFlags().BoolVar(&ignoreError, "ignore-error", false, "ignore any errors found in "+
 		"the conversion and still generate the converted beta policies, use with caution as the converted policies may not work as expected")
+	cmd.PersistentFlags().StringVarP(&perNamespace, "per-namespace", "", "", "store policies per-namespace "+
+		"so that you could verify and apply the generated policies incrementally in separate yaml file per-namespace")
 	return cmd
 }
