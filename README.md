@@ -53,6 +53,17 @@ v1alpha1 authentication policy to the corresponding v1beta1 versions.
 
 1. Before applying in a real cluster, double check the beta policies again to make sure it is correct.
 
+## Rollback
+
+To rollback the generated beta policy in case it is not working as expected, you just delete the beta
+policy from your cluster if you are using Istio 1.5, then re-apply your alpha policy.
+
+Istio 1.5 is a transitive version that supports both alpha and beta policy. The beta version takes precedence
+over the alpha version.
+
+If you are using dual control plane upgrade, first switch back to the old control plane (e.g. 1.4) and then
+re-apply the alpha policy.
+
 ## Supported Policy
 
 This tool supports converting v1alpha1 authentication policy with the following limitations:
