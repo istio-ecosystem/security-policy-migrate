@@ -1,12 +1,19 @@
-package main
+package converter
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
 
+	"github.com/gogo/protobuf/jsonpb"
+	"google.golang.org/protobuf/proto"
 	authnpb "istio.io/api/authentication/v1alpha1"
 	betapb "istio.io/api/security/v1beta1"
 	commonpb "istio.io/api/type/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"sigs.k8s.io/yaml"
 )
 
 type mTLSMode int
@@ -20,11 +27,11 @@ const (
 
 // ResultSummary includes the conversion summary.
 type ResultSummary struct {
-	errors []string
+	Errors []string
 }
 
 func (r *ResultSummary) addError(err string) {
-	r.errors = append(r.errors, err)
+	r.Errors = append(r.Errors, err)
 }
 
 // Converter includes general mesh wide settings.
@@ -38,7 +45,8 @@ type ServiceStore struct {
 	Services map[string]*corev1.Service
 }
 
-func newConverter(rootNamespace string, svcList *corev1.ServiceList) *Converter {
+// NewConverter constructs a Converter.
+func NewConverter(rootNamespace string, svcList *corev1.ServiceList) *Converter {
 	services := map[string]*corev1.Service{}
 	if svcList != nil {
 		for _, svc := range svcList.Items {
@@ -98,6 +106,56 @@ type OutputPolicy struct {
 	PeerAuthN    *betapb.PeerAuthentication
 	RequestAuthN *betapb.RequestAuthentication
 	Authz        *betapb.AuthorizationPolicy
+}
+
+// ToYAML converts output to yaml.
+func (output *OutputPolicy) ToYAML() string {
+	obj := &ObjectStruct{}
+	obj.SetName(output.Name)
+	obj.SetNamespace(output.Namespace)
+	if output.Comment != "" {
+		obj.SetAnnotations(map[string]string{"security.istio.io/alpha-policy-convert": output.Comment})
+	}
+
+	var data strings.Builder
+	if output.PeerAuthN != nil {
+		obj.SetGroupVersionKind(schema.GroupVersionKind{Group: "security.istio.io", Version: "v1beta1", Kind: "PeerAuthentication"})
+		data.WriteString(specToYAML(obj, output.PeerAuthN))
+		data.WriteString("\n---\n")
+	}
+	if output.RequestAuthN != nil {
+		obj.SetGroupVersionKind(schema.GroupVersionKind{Group: "security.istio.io", Version: "v1beta1", Kind: "RequestAuthentication"})
+		data.WriteString(specToYAML(obj, output.RequestAuthN))
+		data.WriteString("\n---\n")
+	}
+	if output.Authz != nil {
+		obj.SetGroupVersionKind(schema.GroupVersionKind{Group: "security.istio.io", Version: "v1beta1", Kind: "AuthorizationPolicy"})
+		data.WriteString(specToYAML(obj, output.Authz))
+		data.WriteString("\n---\n")
+	}
+	return data.String()
+}
+
+func specToYAML(obj *ObjectStruct, spec proto.Message) string {
+	m := jsonpb.Marshaler{}
+	jsonStr, err := m.MarshalToString(spec)
+	if err != nil {
+		log.Fatalf("failed to marshal to string: %v", err)
+	}
+	obj.Spec = map[string]interface{}{}
+	if err := json.Unmarshal([]byte(jsonStr), &obj.Spec); err != nil {
+		log.Fatalf("failed to unmarshal to object: %v", err)
+	}
+	jsonOut, err := json.Marshal(obj)
+	if err != nil {
+		log.Fatalf("failed to marshal policy: %v", err)
+	}
+	yamlOut, err := yaml.JSONToYAML(jsonOut)
+	if err != nil {
+		log.Fatalf("failed to convert JSON to YAML: %v", err)
+	}
+
+	return string(yamlOut)
 }
 
 // Convert converts an v1alpha1 authentication policy to the v1beta1 policies.

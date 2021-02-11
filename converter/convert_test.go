@@ -1,4 +1,4 @@
-package main
+package converter
 
 import (
 	"bytes"
@@ -21,11 +21,11 @@ import (
 	kubeyaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 
-func parseInputs(yaml string) ([]*objectStruct, error) {
+func parseInputs(yaml string) ([]*ObjectStruct, error) {
 	yamlDecoder := kubeyaml.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(yaml)), 512*1024)
-	var ret []*objectStruct
+	var ret []*ObjectStruct
 	for {
-		obj := objectStruct{}
+		obj := ObjectStruct{}
 		err := yamlDecoder.Decode(&obj)
 		if err == io.EOF {
 			break
@@ -33,7 +33,7 @@ func parseInputs(yaml string) ([]*objectStruct, error) {
 		if err != nil {
 			return nil, err
 		}
-		if reflect.DeepEqual(obj, objectStruct{}) {
+		if reflect.DeepEqual(obj, ObjectStruct{}) {
 			continue
 		}
 		ret = append(ret, &obj)
@@ -368,12 +368,12 @@ spec:
 
 	for _, tc := range cases {
 		t.Run(tc.wantError, func(t *testing.T) {
-			mc := newConverter("istio-system", tc.svcList)
+			mc := NewConverter("istio-system", tc.svcList)
 			output, result := mc.Convert(tc.inputPolicy)
-			if len(result.errors) == 0 {
+			if len(result.Errors) == 0 {
 				t.Errorf("want error %q but got no error: %v", tc.wantError, output)
 			}
-			for _, gotErr := range result.errors {
+			for _, gotErr := range result.Errors {
 				if !strings.HasPrefix(gotErr, tc.wantError) {
 					t.Errorf("want error %q but got %q", tc.wantError, gotErr)
 				}
@@ -1129,7 +1129,7 @@ spec:
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			mc := newConverter("istio-system", tc.svcList)
+			mc := NewConverter("istio-system", tc.svcList)
 			output, result := mc.Convert(tc.inputPolicy)
 			compareOutputPolicy(t, output, tc.wantOutput)
 			if t.Failed() {
