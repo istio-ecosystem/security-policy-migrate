@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/gogo/protobuf/jsonpb"
-	"google.golang.org/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	authnpb "istio.io/api/authentication/v1alpha1"
 	betapb "istio.io/api/security/v1beta1"
 	commonpb "istio.io/api/type/v1beta1"

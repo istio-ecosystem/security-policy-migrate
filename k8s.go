@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/istio-ecosystem/security-policy-migrate/converter"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -18,8 +19,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/yaml"
-
-	convertpkg "github.com/istio-ecosystem/security-policy-migrate/converter"
 )
 
 const (
@@ -126,7 +125,7 @@ func (kc *kubeClient) convert() error {
 	if err != nil {
 		return fmt.Errorf("failed to list services: %w", err)
 	}
-	converter := convertpkg.NewConverter(kc.rootNamespace, services)
+	cvt := converter.NewConverter(kc.rootNamespace, services)
 	hasError := false
 	betaPolicyOutput := map[string]*strings.Builder{}
 	for _, gvr := range gvrPolicies {
@@ -136,11 +135,11 @@ func (kc *kubeClient) convert() error {
 			continue
 		}
 		for _, item := range objectList.Items {
-			policy, err := convertToPolicy(item)
+			policy, err := converter.ConvertToPolicy(item)
 			if err != nil {
 				return fmt.Errorf("failed to convert resource to authentication policy: %v", err)
 			}
-			output, summary := converter.Convert(policy)
+			output, summary := cvt.Convert(policy)
 			if cnt := len(summary.Errors); cnt != 0 {
 				errorOutput := fmt.Sprintf("\n\t* %s", strings.Join(summary.Errors, "\n\t* "))
 				log.Printf("FAILED  converting policy %s/%s, found %d errors: %s", item.GetNamespace(), item.GetName(), cnt, errorOutput)
