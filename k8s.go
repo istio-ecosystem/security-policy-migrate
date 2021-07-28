@@ -186,6 +186,10 @@ func (kc *kubeClient) convert() error {
 		}
 	}
 
+	if len(betaPolicyOutput) == 0 {
+		fmt.Printf("generated 0 beta policies")
+		return nil
+	}
 	if perNamespace != "" {
 		for ns, out := range betaPolicyOutput {
 			filename := fmt.Sprintf("%s/ns-%s.yaml", perNamespace, ns)

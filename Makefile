@@ -3,7 +3,7 @@ build:
 	@go build -ldflags="-s -w -X main.version=$(shell ./get-version.sh)" -o out/convert *.go
 
 test:
-	@go test -v $(go list ./... | grep -v /e2e)
+	@go list ./... | grep -v /e2e | xargs go test -v
 
 e2e:
 	go test -v ./e2e/...
