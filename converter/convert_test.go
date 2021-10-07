@@ -742,8 +742,10 @@ spec:
   jwtRules:
   - issuer: "testing@secure.istio.io"
     jwksUri: "https://secure.istio.io"
+    forwardOriginalToken: true
   - issuer: "testing2@secure.istio.io"
     jwksUri: "https://secure2.istio.io"
+    forwardOriginalToken: true
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -840,8 +842,10 @@ spec:
   jwtRules:
   - issuer: "testing@secure.istio.io"
     jwksUri: "https://secure.istio.io"
+    forwardOriginalToken: true
   - issuer: "testing2@secure.istio.io"
     jwksUri: "https://secure2.istio.io"
+    forwardOriginalToken: true
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -959,6 +963,7 @@ spec:
   jwtRules:
   - issuer: "testing@secure.istio.io"
     jwksUri: "https://secure.istio.io"
+    forwardOriginalToken: true
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -1060,6 +1065,7 @@ spec:
   jwtRules:
   - issuer: "testing@secure.istio.io"
     jwksUri: "https://secure.istio.io"
+    forwardOriginalToken: true
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -1121,8 +1127,10 @@ spec:
   jwtRules:
   - issuer: "testing@secure.istio.io"
     jwksUri: "https://secure.istio.io"
+    forwardOriginalToken: true
   - issuer: "testing2@secure.istio.io"
     jwksUri: "https://secure2.istio.io"
+    forwardOriginalToken: true
 `),
 		},
 	}

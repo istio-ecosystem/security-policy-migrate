@@ -281,11 +281,12 @@ func convertJWT(selectors []*outputSelector, input *InputPolicy, result *ResultS
 			}
 			jwt := origin.Jwt
 			jwtRule := &betapb.JWTRule{
-				Issuer:     jwt.Issuer,
-				Audiences:  jwt.Audiences,
-				JwksUri:    jwt.JwksUri,
-				Jwks:       jwt.Jwks,
-				FromParams: jwt.JwtParams,
+				Issuer:               jwt.Issuer,
+				Audiences:            jwt.Audiences,
+				JwksUri:              jwt.JwksUri,
+				Jwks:                 jwt.Jwks,
+				FromParams:           jwt.JwtParams,
+				ForwardOriginalToken: true,
 			}
 			for _, header := range jwt.JwtHeaders {
 				jwtRule.FromHeaders = append(jwtRule.FromHeaders, &betapb.JWTHeader{Name: header})
